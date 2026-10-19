@@ -34,6 +34,11 @@ jobs:
       - name: Set app name
         run: sed -i 's/android:label="[^"]*"/android:label="${{ env.APP_NAME }}"/' android/app/src/main/AndroidManifest.xml
 
+      # Чёрный экран при старте на части Android-устройств связан с графическим
+      # движком Impeller. Отключаем его, приложению он не нужен.
+      - name: Disable Impeller on Android
+        run: sed -i 's#</application>#    <meta-data android:name="io.flutter.embedding.android.EnableImpeller" android:value="false" />\n    </application>#' android/app/src/main/AndroidManifest.xml
+
       - run: flutter pub get
 
       - name: Build APK
