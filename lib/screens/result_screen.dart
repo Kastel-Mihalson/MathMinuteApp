@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../app_state.dart';
 import '../game/problem.dart';
 import '../levels.dart';
+import '../theme.dart';
 import '../widgets.dart';
 import 'game_screen.dart';
 
@@ -25,128 +26,174 @@ class ResultScreen extends StatelessWidget {
     final newLevel = appState.level;
     final leveledUp = newLevel > oldLevel;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              Expanded(
-                child: Center(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Text(
-                          isRecord ? 'Новый рекорд!' : 'Время вышло!',
-                          style: tt.headlineMedium
-                              ?.copyWith(fontWeight: FontWeight.w800),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${record.score}',
-                          style: TextStyle(
-                            fontSize: 80,
-                            fontWeight: FontWeight.w800,
-                            color: cs.primary,
+    return AppBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 84,
+                            height: 84,
+                            decoration: BoxDecoration(
+                              gradient: context.brandGradient,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: kBrand.withValues(alpha: 0.35),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              isRecord
+                                  ? Icons.emoji_events_rounded
+                                  : Icons.timer_rounded,
+                              color: Colors.white,
+                              size: 44,
+                            ),
                           ),
-                        ),
-                        Text('очков · ${record.difficulty.label} уровень',
-                            style: tt.bodyLarge),
-                        const SizedBox(height: 24),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: StatTile(
-                                value: '${record.correct}',
-                                label: 'Верно',
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: StatTile(
-                                value: '${record.wrong}',
-                                label: 'Ошибки',
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: StatTile(
-                                value:
-                                    '${(record.accuracy * 100).round()}%',
-                                label: 'Точность',
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          '+${record.score} XP',
-                          style: tt.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                        if (leveledUp) ...[
                           const SizedBox(height: 16),
-                          Card(
-                            color: cs.primaryContainer,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
+                          Text(
+                            isRecord ? 'Новый рекорд!' : 'Время вышло!',
+                            style: tt.headlineMedium
+                                ?.copyWith(fontWeight: FontWeight.w800),
+                          ),
+                          const SizedBox(height: 8),
+                          TweenAnimationBuilder<int>(
+                            tween: IntTween(begin: 0, end: record.score),
+                            duration: const Duration(milliseconds: 900),
+                            curve: Curves.easeOutCubic,
+                            builder: (context, value, _) => Text(
+                              '$value',
+                              style: TextStyle(
+                                fontSize: 84,
+                                fontWeight: FontWeight.w800,
+                                color: cs.primary,
+                                height: 1.1,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            'очков · ${record.difficulty.label} уровень',
+                            style: tt.bodyLarge
+                                ?.copyWith(color: context.appMuted),
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: StatTile(
+                                  value: '${record.correct}',
+                                  label: 'Верно',
+                                  icon: Icons.check_circle_rounded,
+                                  color: kGreen,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: StatTile(
+                                  value: '${record.wrong}',
+                                  label: 'Ошибки',
+                                  icon: Icons.cancel_rounded,
+                                  color: kRed,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: StatTile(
+                                  value:
+                                      '${(record.accuracy * 100).round()}%',
+                                  label: 'Точность',
+                                  icon: Icons.track_changes_rounded,
+                                  color: cs.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            '+${record.score} XP',
+                            style: tt.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: cs.primary,
+                            ),
+                          ),
+                          if (leveledUp) ...[
+                            const SizedBox(height: 16),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(18),
+                              decoration: BoxDecoration(
+                                gradient: context.brandGradient,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
                               child: Column(
                                 children: [
                                   Text(
                                     'Новый уровень!',
-                                    style: tt.titleMedium?.copyWith(
-                                      color: cs.onPrimaryContainer,
+                                    style: TextStyle(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.9,
+                                      ),
+                                      fontSize: 15,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     '$newLevel · ${titleForLevel(newLevel)}',
                                     textAlign: TextAlign.center,
-                                    style: tt.headlineSmall?.copyWith(
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
                                       fontWeight: FontWeight.w800,
-                                      color: cs.onPrimaryContainer,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: FilledButton(
+                GradientButton(
+                  label: 'Играть снова',
+                  icon: Icons.replay_rounded,
                   onPressed: () => Navigator.of(context).pushReplacement(
                     MaterialPageRoute<void>(
                       builder: (_) =>
                           GameScreen(difficulty: record.difficulty),
                     ),
                   ),
-                  child: const Text(
-                    'Играть снова',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: TextButton(
+                    onPressed: () =>
+                        Navigator.of(context).popUntil((r) => r.isFirst),
+                    child: const Text(
+                      'На главную',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: OutlinedButton(
-                  onPressed: () =>
-                      Navigator.of(context).popUntil((r) => r.isFirst),
-                  child: const Text(
-                    'На главную',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

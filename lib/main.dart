@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'app_state.dart';
 import 'screens/home_screen.dart';
+import 'sound.dart';
 import 'theme.dart';
 
 void main() {
@@ -57,6 +58,8 @@ class _MinutkaAppState extends State<MinutkaApp> {
       // по умолчанию, приложение при этом работает как обычно.
     }
     if (mounted) setState(() => _ready = true);
+    // Готовим звуки заранее, чтобы первый сигнал не запаздывал.
+    Sfx.warmUp();
   }
 
   @override

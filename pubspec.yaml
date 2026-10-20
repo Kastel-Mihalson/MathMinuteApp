@@ -1,7 +1,7 @@
 name: minutka
 description: Решай математические примеры на скорость за 60 секунд.
 publish_to: none
-version: 1.0.0+1
+version: 1.1.0+2
 
 environment:
   sdk: '>=3.0.0 <5.0.0'
@@ -10,6 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   shared_preferences: ^2.2.0
+  audioplayers: ^6.1.0
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/sounds/

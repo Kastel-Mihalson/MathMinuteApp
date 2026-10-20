@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../app_state.dart';
 import '../game/problem.dart';
 import '../levels.dart';
+import '../theme.dart';
 import '../widgets.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -28,117 +29,194 @@ class ProfileScreen extends StatelessWidget {
     return ListenableBuilder(
       listenable: appState,
       builder: (context, _) {
-        final theme = Theme.of(context);
-        final cs = theme.colorScheme;
-        final tt = theme.textTheme;
+        final cs = Theme.of(context).colorScheme;
+        final tt = Theme.of(context).textTheme;
         final level = appState.level;
+        final warning = appState.storageWarning;
 
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Профиль'),
-            actions: [
-              IconButton(
-                tooltip: 'Изменить имя',
-                icon: const Icon(Icons.edit_outlined),
-                onPressed: () => _editName(context),
+        Widget heading(String text) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text(
+                text,
+                style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
-            ],
-          ),
-          body: ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              const LevelCard(),
-              const SizedBox(height: 20),
-              Text('Статистика', style: tt.titleMedium),
-              const SizedBox(height: 10),
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 1.7,
-                children: [
-                  StatTile(value: '${appState.games}', label: 'Игр сыграно'),
-                  StatTile(
-                    value: '${appState.correct}',
-                    label: 'Верных ответов',
-                  ),
-                  StatTile(
-                    value: '${(appState.accuracy * 100).round()}%',
-                    label: 'Точность',
-                  ),
-                  StatTile(
-                    value: '${appState.bestStreak}',
-                    label: 'Лучшая серия',
-                  ),
-                  StatTile(
-                    value: appState.avgCorrectPerGame.toStringAsFixed(1),
-                    label: 'Верных за игру',
-                  ),
-                  StatTile(value: '${appState.xp}', label: 'Всего XP'),
-                ],
+            );
+
+        return AppBackground(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: AppBar(
+              title: const Text(
+                'Профиль',
+                style: TextStyle(fontWeight: FontWeight.w800),
               ),
-              const SizedBox(height: 20),
-              Text('Лучшие результаты', style: tt.titleMedium),
-              const SizedBox(height: 6),
-              for (final d in Difficulty.values)
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(d.label),
-                  trailing: Text(
-                    '${appState.bestScores[d.index]}',
-                    style: tt.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w800),
+              actions: [
+                IconButton(
+                  tooltip: 'Изменить имя',
+                  icon: const Icon(Icons.edit_rounded),
+                  onPressed: () => _editName(context),
+                ),
+              ],
+            ),
+            body: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+              children: [
+                const LevelCard(),
+                const SizedBox(height: 24),
+                heading('Статистика'),
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1.3,
+                  children: [
+                    StatTile(
+                      value: '${appState.games}',
+                      label: 'Игр сыграно',
+                      icon: Icons.sports_esports_rounded,
+                    ),
+                    StatTile(
+                      value: '${appState.correct}',
+                      label: 'Верных ответов',
+                      icon: Icons.check_circle_rounded,
+                      color: kGreen,
+                    ),
+                    StatTile(
+                      value: '${(appState.accuracy * 100).round()}%',
+                      label: 'Точность',
+                      icon: Icons.track_changes_rounded,
+                      color: kAmber,
+                    ),
+                    StatTile(
+                      value: '${appState.bestStreak}',
+                      label: 'Лучшая серия',
+                      icon: Icons.local_fire_department_rounded,
+                      color: kRed,
+                    ),
+                    StatTile(
+                      value: appState.avgCorrectPerGame.toStringAsFixed(1),
+                      label: 'Верных за игру',
+                      icon: Icons.speed_rounded,
+                    ),
+                    StatTile(
+                      value: '${appState.xp}',
+                      label: 'Всего XP',
+                      icon: Icons.auto_awesome_rounded,
+                      color: kAmber,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                heading('Лучшие результаты'),
+                SoftCard(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 6,
+                  ),
+                  child: Column(
+                    children: [
+                      for (final d in Difficulty.values)
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Icon(d.icon, color: d.color),
+                          title: Text(d.label),
+                          trailing: Text(
+                            '${appState.bestScores[d.index]}',
+                            style: tt.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-              const SizedBox(height: 12),
-              ExpansionTile(
-                tilePadding: EdgeInsets.zero,
-                title: Text('Титулы', style: tt.titleMedium),
-                children: [
-                  for (var i = 0; i < kTitles.length; i++)
-                    ListTile(
-                      dense: true,
-                      leading: Icon(
-                        level >= i + 1
-                            ? Icons.check_circle
-                            : Icons.lock_outline,
-                        color: level >= i + 1 ? cs.primary : cs.outline,
-                      ),
-                      title: Text(
-                        kTitles[i],
-                        style: TextStyle(
-                          color: level >= i + 1 ? cs.onSurface : cs.outline,
-                          fontWeight: level == i + 1
-                              ? FontWeight.w800
-                              : FontWeight.w400,
-                        ),
-                      ),
-                      trailing: Text(
-                        i == kTitles.length - 1
-                            ? 'ур. ${i + 1}+'
-                            : 'ур. ${i + 1}',
-                        style: tt.bodySmall,
-                      ),
+                const SizedBox(height: 24),
+                heading('Титулы'),
+                SoftCard(
+                  padding: EdgeInsets.zero,
+                  child: ExpansionTile(
+                    shape: const Border(),
+                    collapsedShape: const Border(),
+                    title: Text(
+                      'Ваш титул: ${appState.title}',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text('Последние игры', style: tt.titleMedium),
-              const SizedBox(height: 6),
-              if (appState.history.isEmpty)
-                Text('Пока нет сыгранных игр', style: tt.bodyMedium)
-              else
-                for (final r in appState.history.take(10))
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text('${r.difficulty.label} · ${r.score} очков'),
-                    subtitle: Text(
-                      '${r.correct} верно, ${r.wrong} ошибок · ${_fmt(r.date)}',
+                    children: [
+                      for (var i = 0; i < kTitles.length; i++)
+                        ListTile(
+                          dense: true,
+                          leading: Icon(
+                            level >= i + 1
+                                ? Icons.check_circle_rounded
+                                : Icons.lock_rounded,
+                            color: level >= i + 1 ? cs.primary : cs.outline,
+                          ),
+                          title: Text(
+                            kTitles[i],
+                            style: TextStyle(
+                              color:
+                                  level >= i + 1 ? cs.onSurface : cs.outline,
+                              fontWeight: level == i + 1
+                                  ? FontWeight.w800
+                                  : FontWeight.w400,
+                            ),
+                          ),
+                          trailing: Text(
+                            i == kTitles.length - 1
+                                ? 'ур. ${i + 1}+'
+                                : 'ур. ${i + 1}',
+                            style: tt.bodySmall,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                heading('Последние игры'),
+                if (appState.history.isEmpty)
+                  SoftCard(
+                    child: Text(
+                      'Пока нет сыгранных игр. Самое время начать!',
+                      style: tt.bodyMedium,
+                    ),
+                  )
+                else
+                  SoftCard(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
+                    child: Column(
+                      children: [
+                        for (final r in appState.history.take(10))
+                          ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: Icon(
+                              r.difficulty.icon,
+                              color: r.difficulty.color,
+                            ),
+                            title: Text(
+                              '${r.score} очков · ${r.difficulty.label}',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            subtitle: Text(
+                              '${r.correct} верно, ${r.wrong} ошибок · ${_fmt(r.date)}',
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-            ],
+                if (warning != null) ...[
+                  const SizedBox(height: 24),
+                  SelectableText(
+                    'Служебная информация (хранилище):\n$warning',
+                    style: tt.bodySmall?.copyWith(color: context.appMuted),
+                  ),
+                ],
+              ],
+            ),
           ),
         );
       },
