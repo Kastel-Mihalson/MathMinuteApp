@@ -188,6 +188,30 @@ class AppState extends ChangeNotifier {
     await _save();
   }
 
+  /// Все данные (настройки, профиль, статистика) одной строкой для копирования.
+  String exportData() => jsonEncode({
+        'app': 'minutka',
+        'v': 1,
+        'data': _toJson(),
+      });
+
+  /// Восстанавливает данные из строки, полученной через [exportData].
+  Future<bool> importData(String text) async {
+    try {
+      final decoded = jsonDecode(text.trim());
+      if (decoded is! Map) return false;
+      final inner = decoded['data'];
+      final map = Map<String, dynamic>.from(inner is Map ? inner : decoded);
+      if (!map.containsKey('xp') || !map.containsKey('games')) return false;
+      _fromJson(map);
+      notifyListeners();
+      await _save();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> setStyle(AppStyle value) async {
     style = value;
     notifyListeners();

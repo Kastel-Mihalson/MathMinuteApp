@@ -41,13 +41,38 @@ class MinutkaApp extends StatefulWidget {
   State<MinutkaApp> createState() => _MinutkaAppState();
 }
 
-class _MinutkaAppState extends State<MinutkaApp> {
+class _MinutkaAppState extends State<MinutkaApp> with WidgetsBindingObserver {
   bool _ready = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _boot();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Системная тема изменилась (важно для режима «Авто»).
+  @override
+  void didChangePlatformBrightness() {
+    if (mounted) setState(() {});
+  }
+
+  /// Яркость считаем сами: выбор «Светлая» и «Тёмная» всегда применяется.
+  Brightness _brightness() {
+    switch (appState.themeMode) {
+      case ThemeMode.light:
+        return Brightness.light;
+      case ThemeMode.dark:
+        return Brightness.dark;
+      case ThemeMode.system:
+        return WidgetsBinding.instance.platformDispatcher.platformBrightness;
+    }
   }
 
   Future<void> _boot() async {
@@ -79,9 +104,8 @@ class _MinutkaAppState extends State<MinutkaApp> {
       builder: (context, _) => MaterialApp(
         title: 'Минутка',
         debugShowCheckedModeBanner: false,
-        theme: buildTheme(Brightness.light, appState.style),
-        darkTheme: buildTheme(Brightness.dark, appState.style),
-        themeMode: appState.themeMode,
+        theme: buildTheme(_brightness(), appState.style),
+        themeAnimationDuration: Duration.zero,
         home: const HomeScreen(),
       ),
     );

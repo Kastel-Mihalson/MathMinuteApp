@@ -25,27 +25,7 @@ class StylePicker extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 14),
-        SegmentedButton<ThemeMode>(
-          segments: const [
-            ButtonSegment<ThemeMode>(
-              value: ThemeMode.light,
-              icon: Icon(Icons.light_mode_rounded),
-              label: Text('Светлая'),
-            ),
-            ButtonSegment<ThemeMode>(
-              value: ThemeMode.dark,
-              icon: Icon(Icons.dark_mode_rounded),
-              label: Text('Тёмная'),
-            ),
-            ButtonSegment<ThemeMode>(
-              value: ThemeMode.system,
-              icon: Icon(Icons.brightness_auto_rounded),
-              label: Text('Авто'),
-            ),
-          ],
-          selected: {appState.themeMode},
-          onSelectionChanged: (s) => appState.setThemeMode(s.first),
-        ),
+        const _ModeSwitch(),
       ],
     );
   }
@@ -144,4 +124,68 @@ class _StyleTile extends StatelessWidget {
           border: border == null ? null : Border.all(color: border),
         ),
       );
+}
+
+/// Переключатель «Светлая / Тёмная / Авто».
+class _ModeSwitch extends StatelessWidget {
+  const _ModeSwitch();
+
+  @override
+  Widget build(BuildContext context) {
+    final pal = context.pal;
+
+    Widget item(ThemeMode mode, IconData icon, String label) {
+      final selected = appState.themeMode == mode;
+      return Expanded(
+        child: Semantics(
+          button: true,
+          selected: selected,
+          label: label,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => appState.setThemeMode(mode),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              height: 48,
+              decoration: BoxDecoration(
+                color: selected ? pal.primary : Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, size: 18, color: selected ? pal.onPrimary : pal.muted),
+                  const SizedBox(width: 6),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      color: selected ? pal.onPrimary : pal.text,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: pal.card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: pal.outline),
+      ),
+      child: Row(
+        children: [
+          item(ThemeMode.light, Icons.light_mode_rounded, 'Светлая'),
+          item(ThemeMode.dark, Icons.dark_mode_rounded, 'Тёмная'),
+          item(ThemeMode.system, Icons.brightness_auto_rounded, 'Авто'),
+        ],
+      ),
+    );
+  }
 }
