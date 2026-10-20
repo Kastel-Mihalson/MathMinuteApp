@@ -8,6 +8,9 @@ const Color kGreen = Color(0xFF22B573);
 /// Цвет ошибки.
 const Color kRed = Color(0xFFEF4444);
 
+/// Основной фирменный цвет.
+const Color kBrand = Color(0xFF6C5CE7);
+
 /// Тёплый акцентный цвет (иконки статистики).
 const Color kAmber = Color(0xFFF5A524);
 
@@ -142,6 +145,63 @@ class SoftCard extends StatelessWidget {
         ],
       ),
       child: child,
+    );
+  }
+}
+
+/// Крупная кнопка с градиентом, иконкой и подписью.
+class GradientButton extends StatelessWidget {
+  const GradientButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.icon,
+  });
+
+  final String label;
+  final IconData? icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 58,
+      decoration: BoxDecoration(
+        gradient: accentGradient(context),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: kBrand.withValues(alpha: 0.35),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onPressed,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, color: Colors.white),
+                const SizedBox(width: 10),
+              ],
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
