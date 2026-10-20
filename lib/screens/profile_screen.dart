@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
+import '../avatar.dart';
+import '../style_picker.dart';
 import '../game/problem.dart';
 import '../levels.dart';
 import '../theme.dart';
@@ -61,7 +63,10 @@ class ProfileScreen extends StatelessWidget {
             body: ListView(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
               children: [
-                const LevelCard(),
+                LevelCard(onAvatarTap: () => showAvatarSheet(context)),
+                const SizedBox(height: 24),
+                heading('Оформление'),
+                const StylePicker(),
                 const SizedBox(height: 24),
                 heading('Статистика'),
                 GridView.count(

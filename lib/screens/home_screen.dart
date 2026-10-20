@@ -113,7 +113,7 @@ class HomeScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF6C5CE7).withValues(alpha: 0.35),
+                      color: context.pal.primary.withValues(alpha: 0.35),
                       blurRadius: 18,
                       offset: const Offset(0, 8),
                     ),
@@ -128,13 +128,13 @@ class HomeScreen extends StatelessWidget {
                         builder: (_) => GameScreen(difficulty: d),
                       ),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
                         'Старт · 60 секунд',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: Colors.white,
+                          color: context.pal.onPrimary,
                         ),
                       ),
                     ),

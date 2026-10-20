@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'app_style.dart';
 import 'game/problem.dart';
 import 'levels.dart';
 
@@ -48,6 +50,7 @@ class GameRecord {
 /// Хранится локально на устройстве одной JSON-строкой.
 class AppState extends ChangeNotifier {
   static const String _key = 'minutka_state_v1';
+  static const String _photoKey = 'minutka_avatar_photo_v1';
 
   SharedPreferences? _prefs;
 
@@ -59,6 +62,13 @@ class AppState extends ChangeNotifier {
   bool soundEnabled = true;
   String name = 'Игрок';
   Difficulty difficulty = Difficulty.easy;
+
+  /// Стиль оформления.
+  AppStyle style = AppStyle.classic;
+
+  /// Номер готового аватара (-1 — не выбран) и фото (приоритетнее готового).
+  int avatarPreset = -1;
+  Uint8List? avatarPhoto;
 
   int xp = 0;
   int games = 0;
@@ -85,6 +95,8 @@ class AppState extends ChangeNotifier {
         'theme': themeMode.index,
         'sound': soundEnabled,
         'name': name,
+        'style': style.index,
+        'avatarPreset': avatarPreset,
         'difficulty': difficulty.index,
         'xp': xp,
         'games': games,
@@ -101,6 +113,8 @@ class AppState extends ChangeNotifier {
     final n = j['name'];
     name = (n is String && n.isNotEmpty) ? n : 'Игрок';
     difficulty = Difficulty.values[_index(j['difficulty'], 3)];
+    style = AppStyle.values[_index(j['style'], AppStyle.values.length)];
+    avatarPreset = _int(j['avatarPreset'], -1);
     xp = _int(j['xp']);
     games = _int(j['games']);
     correct = _int(j['correct']);
@@ -134,6 +148,14 @@ class AppState extends ChangeNotifier {
       if (raw != null) {
         _fromJson(jsonDecode(raw) as Map<String, dynamic>);
       }
+      final photo = p.getString(_photoKey);
+      if (photo != null && photo.isNotEmpty) {
+        try {
+          avatarPhoto = base64Decode(photo);
+        } catch (_) {
+          avatarPhoto = null;
+        }
+      }
     } catch (e) {
       storageWarning = 'Не удалось загрузить данные: $e';
     }
@@ -163,6 +185,54 @@ class AppState extends ChangeNotifier {
   Future<void> setThemeMode(ThemeMode mode) async {
     themeMode = mode;
     notifyListeners();
+    await _save();
+  }
+
+  Future<void> setStyle(AppStyle value) async {
+    style = value;
+    notifyListeners();
+    await _save();
+  }
+
+  Future<void> _writePhoto(Uint8List? bytes) async {
+    try {
+      final p = _prefs ?? await SharedPreferences.getInstance();
+      _prefs = p;
+      if (bytes == null) {
+        await p.remove(_photoKey);
+      } else {
+        await p.setString(_photoKey, base64Encode(bytes));
+      }
+    } catch (e) {
+      storageWarning = 'Не удалось сохранить фото: $e';
+      notifyListeners();
+    }
+  }
+
+  /// Выбирает готовый аватар (фото при этом убирается).
+  Future<void> setAvatarPreset(int index) async {
+    avatarPreset = index;
+    avatarPhoto = null;
+    notifyListeners();
+    await _writePhoto(null);
+    await _save();
+  }
+
+  /// Ставит своё фото в качестве аватара.
+  Future<void> setAvatarPhoto(Uint8List bytes) async {
+    avatarPhoto = bytes;
+    avatarPreset = -1;
+    notifyListeners();
+    await _writePhoto(bytes);
+    await _save();
+  }
+
+  /// Возвращает аватар по умолчанию.
+  Future<void> resetAvatar() async {
+    avatarPreset = -1;
+    avatarPhoto = null;
+    notifyListeners();
+    await _writePhoto(null);
     await _save();
   }
 
