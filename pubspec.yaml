@@ -12,6 +12,11 @@ dependencies:
   shared_preferences: ^2.2.0
   audioplayers: ^6.1.0
 
+# shared_preferences_android 2.5.0 (вышла 17.10.2026) падает на Android с
+# NoSuchMethodError, из-за чего данные не сохранялись. Закрепляем рабочую версию.
+dependency_overrides:
+  shared_preferences_android: 2.4.28
+
 flutter:
   uses-material-design: true
   assets:

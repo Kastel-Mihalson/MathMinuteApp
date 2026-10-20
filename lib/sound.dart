@@ -9,7 +9,7 @@ class Sfx {
 
   static Future<AudioPlayer> _make() async {
     final p = AudioPlayer();
-    await p.setPlayerMode(PlayerMode.lowLatency);
+    await p.setReleaseMode(ReleaseMode.stop);
     return p;
   }
 
@@ -36,6 +36,8 @@ class Sfx {
     if (!appState.soundEnabled) return;
     try {
       final player = await _player(good);
+      // Без stop() повторное воспроизведение того же звука может не сработать.
+      await player.stop();
       await player.play(
         AssetSource(good ? 'sounds/correct.wav' : 'sounds/wrong.wav'),
       );
