@@ -1,7 +1,7 @@
 name: minutka
 description: Решай математические примеры на скорость за 60 секунд.
 publish_to: none
-version: 1.1.0+2
+version: 1.2.0+3
 
 environment:
   sdk: '>=3.0.0 <5.0.0'
@@ -11,11 +11,15 @@ dependencies:
     sdk: flutter
   shared_preferences: ^2.2.0
   audioplayers: ^6.1.0
+  image_picker: 1.1.2
 
 # shared_preferences_android 2.5.0 (вышла 17.10.2026) падает на Android с
 # NoSuchMethodError, из-за чего данные не сохранялись. Закрепляем рабочую версию.
 dependency_overrides:
   shared_preferences_android: 2.4.28
+  # Проверенные версии плагина выбора фото (самые свежие вышли совсем недавно).
+  image_picker_android: 0.8.12+24
+  image_picker_ios: 0.8.13+6
 
 flutter:
   uses-material-design: true

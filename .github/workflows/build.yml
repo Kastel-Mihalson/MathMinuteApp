@@ -71,6 +71,12 @@ jobs:
       - name: Set app name
         run: /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName ${{ env.APP_NAME }}" ios/Runner/Info.plist
 
+      # Без этих строк iOS закроет приложение при выборе фото для аватара.
+      - name: Add camera and photo library permissions
+        run: |
+          /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string Камера нужна, чтобы сделать фото для аватара" ios/Runner/Info.plist || true
+          /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string Галерея нужна, чтобы выбрать фото для аватара" ios/Runner/Info.plist || true
+
       - run: flutter pub get
 
       - name: Build iOS (no codesign)

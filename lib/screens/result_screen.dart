@@ -47,7 +47,7 @@ class ResultScreen extends StatelessWidget {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: kBrand.withValues(alpha: 0.35),
+                                  color: context.pal.primary.withValues(alpha: 0.35),
                                   blurRadius: 20,
                                   offset: const Offset(0, 8),
                                 ),
@@ -57,7 +57,7 @@ class ResultScreen extends StatelessWidget {
                               isRecord
                                   ? Icons.emoji_events_rounded
                                   : Icons.timer_rounded,
-                              color: Colors.white,
+                              color: context.pal.onPrimary,
                               size: 44,
                             ),
                           ),
@@ -141,7 +141,7 @@ class ResultScreen extends StatelessWidget {
                                   Text(
                                     'Новый уровень!',
                                     style: TextStyle(
-                                      color: Colors.white.withValues(
+                                      color: context.pal.onPrimary.withValues(
                                         alpha: 0.9,
                                       ),
                                       fontSize: 15,
@@ -151,8 +151,8 @@ class ResultScreen extends StatelessWidget {
                                   Text(
                                     '$newLevel · ${titleForLevel(newLevel)}',
                                     textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: context.pal.onPrimary,
                                       fontSize: 24,
                                       fontWeight: FontWeight.w800,
                                     ),

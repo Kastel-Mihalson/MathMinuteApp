@@ -79,8 +79,8 @@ class _MinutkaAppState extends State<MinutkaApp> {
       builder: (context, _) => MaterialApp(
         title: 'Минутка',
         debugShowCheckedModeBanner: false,
-        theme: buildTheme(Brightness.light),
-        darkTheme: buildTheme(Brightness.dark),
+        theme: buildTheme(Brightness.light, appState.style),
+        darkTheme: buildTheme(Brightness.dark, appState.style),
         themeMode: appState.themeMode,
         home: const HomeScreen(),
       ),

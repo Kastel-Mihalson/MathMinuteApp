@@ -1,33 +1,40 @@
 import 'package:flutter/material.dart';
 
 import 'app_state.dart';
+import 'avatar.dart';
 import 'levels.dart';
 import 'theme.dart';
 
-/// Карточка с уровнем, титулом и прогрессом до следующего уровня.
+/// Карточка с аватаром, уровнем, титулом и прогрессом до следующего уровня.
 class LevelCard extends StatelessWidget {
-  const LevelCard({super.key, this.onTap});
+  const LevelCard({super.key, this.onTap, this.onAvatarTap});
 
+  /// Нажатие на всю карточку.
   final VoidCallback? onTap;
+
+  /// Нажатие на аватар (если задано, на нём появляется значок «изменить»).
+  final VoidCallback? onAvatarTap;
 
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final pal = context.pal;
     final level = appState.level;
     final start = xpForLevel(level);
     final end = xpForLevel(level + 1);
+    final on = pal.onPrimary;
 
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(28),
       child: Ink(
         decoration: BoxDecoration(
-          gradient: accentGradient(context),
+          gradient: pal.gradient,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF6C5CE7).withValues(alpha: 0.30),
-              blurRadius: 20,
+              color: pal.primary.withValues(alpha: pal.glow ? 0.40 : 0.30),
+              blurRadius: pal.glow ? 28 : 20,
               offset: const Offset(0, 8),
             ),
           ],
@@ -41,24 +48,13 @@ class LevelCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.22),
-                      ),
-                      child: Text(
-                        '$level',
-                        style: const TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                        ),
-                      ),
+                    UserAvatar(
+                      size: 88,
+                      accent: on,
+                      editable: onAvatarTap != null,
+                      onTap: onAvatarTap,
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 18),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,14 +63,14 @@ class LevelCard extends StatelessWidget {
                             appState.title,
                             style: tt.titleLarge?.copyWith(
                               fontWeight: FontWeight.w800,
-                              color: Colors.white,
+                              color: on,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             '${appState.name} · уровень $level',
                             style: tt.bodyMedium?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.85),
+                              color: on.withValues(alpha: 0.85),
                             ),
                           ),
                         ],
@@ -88,9 +84,8 @@ class LevelCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: levelProgress(appState.xp),
                     minHeight: 10,
-                    backgroundColor: Colors.white.withValues(alpha: 0.25),
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(Colors.white),
+                    backgroundColor: on.withValues(alpha: 0.25),
+                    valueColor: AlwaysStoppedAnimation<Color>(on),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -99,7 +94,7 @@ class LevelCard extends StatelessWidget {
                   child: Text(
                     '${appState.xp - start} / ${end - start} XP до уровня ${level + 1}',
                     style: tt.bodySmall?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.9),
+                      color: on.withValues(alpha: 0.9),
                     ),
                   ),
                 ),

@@ -141,7 +141,7 @@ class _GameScreenState extends State<GameScreen> {
       _correct++;
       _streak++;
       if (_streak > _bestStreak) _bestStreak = _streak;
-      _flash = kGreen;
+      _flash = context.pal.correct;
     });
     _flashTimer = Timer(const Duration(milliseconds: 220), () {
       if (!mounted || _finished) return;
@@ -161,7 +161,7 @@ class _GameScreenState extends State<GameScreen> {
       _locked = true;
       _wrong++;
       _streak = 0;
-      _flash = kRed;
+      _flash = context.pal.wrong;
     });
     _flashTimer = Timer(const Duration(milliseconds: 420), () {
       if (!mounted || _finished) return;
@@ -189,6 +189,7 @@ class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final pal = context.pal;
     final secs = (_remainingMs / 1000).ceil();
     final low = _running && secs <= 10;
     final flash = _flash;
@@ -216,7 +217,7 @@ class _GameScreenState extends State<GameScreen> {
                     style: TextStyle(
                       fontSize: 34,
                       fontWeight: FontWeight.w800,
-                      color: low ? kRed : cs.onSurface,
+                      color: low ? pal.wrong : cs.onSurface,
                     ),
                   ),
                   const Spacer(),
@@ -227,16 +228,16 @@ class _GameScreenState extends State<GameScreen> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: kGreen.withValues(alpha: 0.15),
+                      color: pal.correct.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Text(
                       '$_correct',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
-                        color: kGreen,
+                        color: pal.correct,
                       ),
                     ),
                   ),
@@ -248,7 +249,7 @@ class _GameScreenState extends State<GameScreen> {
                 child: LinearProgressIndicator(
                   value: _remainingMs / totalMs,
                   minHeight: 8,
-                  color: low ? kRed : cs.primary,
+                  color: low ? pal.wrong : cs.primary,
                   backgroundColor: cs.primary.withValues(alpha: 0.12),
                 ),
               ),
@@ -313,7 +314,7 @@ class _GameScreenState extends State<GameScreen> {
         return Transform.translate(offset: Offset(dx, 0), child: child);
       },
       child: AnimatedScale(
-        scale: flash == kGreen ? 1.05 : 1.0,
+        scale: flash == context.pal.correct ? 1.05 : 1.0,
         duration: const Duration(milliseconds: 150),
         curve: Curves.easeOut,
         child: AnimatedContainer(
@@ -322,17 +323,23 @@ class _GameScreenState extends State<GameScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 28),
           decoration: BoxDecoration(
             color: flash == null ? card : flash.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(context.pal.cardRadius + 4),
             border: Border.all(
               color: flash ?? Colors.transparent,
               width: 2.5,
             ),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
-                blurRadius: 18,
-                offset: const Offset(0, 6),
-              ),
+              if (context.pal.glow && flash != null)
+                BoxShadow(
+                  color: flash.withValues(alpha: 0.35),
+                  blurRadius: 36,
+                )
+              else
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
+                ),
             ],
           ),
           child: Column(
@@ -389,13 +396,20 @@ class _KeyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final pal = context.pal;
+    final radius = BorderRadius.circular(pal.keyRadius);
     return Material(
-      color: cardColorOf(context),
-      elevation: 2,
+      color: pal.card,
+      elevation: pal.borderWidth > 0 ? 0 : 2,
       shadowColor: Colors.black.withValues(alpha: 0.18),
-      borderRadius: BorderRadius.circular(22),
+      shape: RoundedRectangleBorder(
+        borderRadius: radius,
+        side: pal.borderWidth > 0
+            ? BorderSide(color: pal.outline, width: pal.borderWidth)
+            : BorderSide.none,
+      ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: radius,
         onTap: onTap,
         child: Center(
           child: icon != null
