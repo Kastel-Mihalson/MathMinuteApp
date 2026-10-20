@@ -331,8 +331,8 @@ class _GameScreenState extends State<GameScreen> {
             boxShadow: [
               if (context.pal.glow && flash != null)
                 BoxShadow(
-                  color: flash.withValues(alpha: 0.35),
-                  blurRadius: 36,
+                  color: flash.withValues(alpha: 0.18),
+                  blurRadius: 28,
                 )
               else
                 BoxShadow(

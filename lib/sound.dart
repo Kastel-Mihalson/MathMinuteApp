@@ -1,46 +1,55 @@
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 
 import 'app_state.dart';
 
 /// Звуковые эффекты. Любая ошибка звука игнорируется, игра от неё не страдает.
+/// Для каждого звука создаётся новый плеер, который удаляется после
+/// воспроизведения: так звук не зависит от состояния предыдущего.
 class Sfx {
-  static AudioPlayer? _ok;
-  static AudioPlayer? _bad;
+  Sfx._();
 
-  static Future<AudioPlayer> _make() async {
-    final p = AudioPlayer();
-    await p.setReleaseMode(ReleaseMode.stop);
-    return p;
-  }
+  /// Последняя ошибка воспроизведения (показывается в профиле для диагностики).
+  static String? lastError;
 
-  static Future<AudioPlayer> _player(bool good) async {
-    if (good) {
-      return _ok ??= await _make();
-    }
-    return _bad ??= await _make();
-  }
-
-  /// Заранее создаёт плееры, чтобы первый звук не запаздывал.
+  /// Заранее загружает звуковые файлы, чтобы первый сигнал не запаздывал.
   static Future<void> warmUp() async {
     try {
-      await _player(true);
-      await _player(false);
+      await AudioCache.instance.loadAll(
+        const ['sounds/correct.wav', 'sounds/wrong.wav'],
+      );
     } catch (_) {}
   }
 
-  static void correct() => _play(true);
+  static void correct() => _play('sounds/correct.wav');
 
-  static void wrong() => _play(false);
+  static void wrong() => _play('sounds/wrong.wav');
 
-  static Future<void> _play(bool good) async {
+  static Future<void> _play(String asset) async {
     if (!appState.soundEnabled) return;
+    AudioPlayer? player;
     try {
-      final player = await _player(good);
-      // Без stop() повторное воспроизведение того же звука может не сработать.
-      await player.stop();
-      await player.play(
-        AssetSource(good ? 'sounds/correct.wav' : 'sounds/wrong.wav'),
-      );
-    } catch (_) {}
+      final p = AudioPlayer();
+      player = p;
+      var released = false;
+      Future<void> release() async {
+        if (released) return;
+        released = true;
+        try {
+          await p.dispose();
+        } catch (_) {}
+      }
+
+      p.onPlayerComplete.listen((_) => release());
+      // На случай, если сигнал завершения не придёт.
+      Timer(const Duration(seconds: 4), release);
+      await p.play(AssetSource(asset));
+    } catch (e) {
+      lastError = 'Звук: $e';
+      try {
+        await player?.dispose();
+      } catch (_) {}
+    }
   }
 }

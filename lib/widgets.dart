@@ -33,8 +33,8 @@ class LevelCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: pal.primary.withValues(alpha: pal.glow ? 0.40 : 0.30),
-              blurRadius: pal.glow ? 28 : 20,
+              color: pal.primary.withValues(alpha: pal.glow ? 0.22 : 0.30),
+              blurRadius: pal.glow ? 22 : 20,
               offset: const Offset(0, 8),
             ),
           ],

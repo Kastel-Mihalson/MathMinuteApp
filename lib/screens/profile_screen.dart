@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../app_state.dart';
 import '../avatar.dart';
+import '../backup.dart';
+import '../sound.dart';
 import '../style_picker.dart';
 import '../game/problem.dart';
 import '../levels.dart';
@@ -34,7 +36,9 @@ class ProfileScreen extends StatelessWidget {
         final cs = Theme.of(context).colorScheme;
         final tt = Theme.of(context).textTheme;
         final level = appState.level;
-        final warning = appState.storageWarning;
+        final warning = [appState.storageWarning, Sfx.lastError]
+            .whereType<String>()
+            .join('\n');
 
         Widget heading(String text) => Padding(
               padding: const EdgeInsets.only(bottom: 10),
@@ -213,10 +217,13 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                if (warning != null) ...[
+                const SizedBox(height: 24),
+                heading('Резервная копия'),
+                const BackupCard(),
+                if (warning.isNotEmpty) ...[
                   const SizedBox(height: 24),
                   SelectableText(
-                    'Служебная информация (хранилище):\n$warning',
+                    'Служебная информация:\n$warning',
                     style: tt.bodySmall?.copyWith(color: context.appMuted),
                   ),
                 ],
